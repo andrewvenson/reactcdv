@@ -1,11 +1,11 @@
 import React from "react";
 
-const Map = () => {
+const Globals = () => {
   return (
     <div style={{ height: "100%", width: "100%" }}>
-      <p>Map</p>
+      <p>Global Cases</p>
     </div>
   );
 };
 
-export default Map;
+export default Globals;

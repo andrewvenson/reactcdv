@@ -1,11 +1,11 @@
 import React from "react";
 
-const Map = () => {
+const ActiveGraph = () => {
   return (
     <div style={{ height: "100%", width: "100%" }}>
-      <p>Map</p>
+      <p>Active Graph</p>
     </div>
   );
 };
 
-export default Map;
+export default ActiveGraph;
