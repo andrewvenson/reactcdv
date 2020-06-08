@@ -12,9 +12,9 @@ const ActiveGraph = () => {
         label: "New Cases",
         fill: false,
         lineTension: 0.5,
-        backgroundColor: "rgba(75,192,192,1)",
+        backgroundColor: "rgba(30,144,255,1)",
         borderColor: "rgba(0,0,0,1)",
-        borderWidth: 2,
+        borderWidth: 0,
         data: dailyNewDataY,
       },
     ],
@@ -32,6 +32,15 @@ const ActiveGraph = () => {
         legend: {
           display: true,
           position: "right",
+        },
+        scales: {
+          xAxes: [
+            {
+              gridLines: {
+                display: false,
+              },
+            },
+          ],
         },
         maintainAspectRatio: false,
       }}
