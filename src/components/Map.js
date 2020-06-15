@@ -97,8 +97,6 @@ function Map() {
     }
   }
 
-  console.log(coordsObjArr);
-
   // creates map component
   const CdvMapComponent = withScriptjs(
     withGoogleMap((props) => (
