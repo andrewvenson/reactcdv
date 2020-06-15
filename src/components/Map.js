@@ -1,5 +1,10 @@
 import React, { useState } from "react";
-import { withScriptjs, withGoogleMap, GoogleMap } from "react-google-maps";
+import {
+  withScriptjs,
+  withGoogleMap,
+  GoogleMap,
+  Polygon,
+} from "react-google-maps";
 
 function Map() {
   const navTab = {
@@ -19,6 +24,7 @@ function Map() {
     view: "global",
     defaultCenter: { lat: 28.0339, lng: -1.6596 },
     defaultZoom: 2,
+    data: require("../geojsons/countries.geo.json"),
   });
 
   // switches mapview state
@@ -30,6 +36,7 @@ function Map() {
           view: "global",
           defaultCenter: { lat: 28.0339, lng: -1.6596 },
           defaultZoom: 2,
+          data: require("../geojsons/countries.geo.json"),
         });
         break;
       case "states":
@@ -38,6 +45,7 @@ function Map() {
           view: "states",
           defaultCenter: { lat: 39.0119, lng: -98.4842 },
           defaultZoom: 4,
+          data: require("../geojsons/gz_2010_us_040_00_500kgeo.json"),
         });
         break;
       case "counties":
@@ -46,10 +54,46 @@ function Map() {
           view: "counties",
           defaultCenter: { lat: 39.0119, lng: -98.4842 },
           defaultZoom: 4,
+          data: require("../geojsons/us-countiesgeo.json"),
         });
         break;
       default:
         console.log("test default");
+    }
+  }
+
+  // object to hold manipulated geojson data
+  let coordsObjArr = {};
+
+  for (let country in mapview.data["features"]) {
+    if (mapview.data["features"][country].geometry.type === "MultiPolygon") {
+      coordsObjArr[mapview.data["features"][country].properties.name] = {};
+
+      mapview.data["features"][country].geometry.coordinates.forEach(
+        (coords, index) => {
+          coordsObjArr[mapview.data["features"][country].properties.name][
+            `${index}${mapview.data["features"][country].properties.name}`
+          ] = [];
+          coords[0].forEach((coo) => {
+            coordsObjArr[mapview.data["features"][country].properties.name][
+              `${index}${mapview.data["features"][country].properties.name}`
+            ].push({
+              lat: coo[1],
+              lng: coo[0],
+            });
+          });
+        }
+      );
+    } else {
+      coordsObjArr[mapview.data["features"][country].properties.name] = [];
+      mapview.data["features"][country].geometry.coordinates[0].forEach(
+        (coords) => {
+          coordsObjArr[mapview.data["features"][country].properties.name].push({
+            lng: coords[0],
+            lat: coords[1],
+          });
+        }
+      );
     }
   }
 
@@ -59,7 +103,46 @@ function Map() {
       <GoogleMap
         defaultZoom={mapview.defaultZoom}
         defaultCenter={mapview.defaultCenter}
-      ></GoogleMap>
+      >
+        {/* Returns polygon data layer */}
+        {Object.keys(coordsObjArr).map((coords, index) => {
+          // if Data type is polygon return simple array
+          if (Array.isArray(coordsObjArr[coords])) {
+            // return array of coordinates in polygon
+            return (
+              <Polygon
+                path={coordsObjArr[coords]}
+                key={index}
+                options={{
+                  fillColor: "#000",
+                  fillOpacity: 0.4,
+                  strokeColor: "#000",
+                  strokeOpacity: 1,
+                  strokeWeight: 1,
+                }}
+              />
+            );
+          } else {
+            // if data type is multipolygon map through objects within object
+            return Object.keys(coordsObjArr[coords]).map((coo, ind) => {
+              // return array of coordinates
+              return (
+                <Polygon
+                  path={coordsObjArr[coords][coo]}
+                  key={ind}
+                  options={{
+                    fillColor: "#000",
+                    fillOpacity: 0.4,
+                    strokeColor: "#000",
+                    strokeOpacity: 1,
+                    strokeWeight: 1,
+                  }}
+                />
+              );
+            });
+          }
+        })}
+      </GoogleMap>
     ))
   );
 
