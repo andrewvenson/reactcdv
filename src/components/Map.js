@@ -24,6 +24,7 @@ function Map() {
     view: "global",
     defaultCenter: { lat: 28.0339, lng: -1.6596 },
     defaultZoom: 2,
+    data: require("../geojsons/countries.geo.json"),
   });
 
   // switches mapview state
@@ -35,6 +36,7 @@ function Map() {
           view: "global",
           defaultCenter: { lat: 28.0339, lng: -1.6596 },
           defaultZoom: 2,
+          data: require("../geojsons/countries.geo.json"),
         });
         break;
       case "states":
@@ -43,6 +45,7 @@ function Map() {
           view: "states",
           defaultCenter: { lat: 39.0119, lng: -98.4842 },
           defaultZoom: 4,
+          data: require("../geojsons/gz_2010_us_040_00_500kgeo.json"),
         });
         break;
       case "counties":
@@ -51,6 +54,7 @@ function Map() {
           view: "counties",
           defaultCenter: { lat: 39.0119, lng: -98.4842 },
           defaultZoom: 4,
+          data: require("../geojsons/us-countiesgeo.json"),
         });
         break;
       default:
@@ -58,21 +62,21 @@ function Map() {
     }
   }
 
-  const data = require("../geojsons/countries.geo.json");
-
+  // object to hold manipulated geojson data
   let coordsObjArr = {};
 
-  for (let country in data["features"]) {
-    if (data["features"][country].geometry.type === "MultiPolygon") {
-      coordsObjArr[data["features"][country].properties.name] = {};
-      data["features"][country].geometry.coordinates.forEach(
+  for (let country in mapview.data["features"]) {
+    if (mapview.data["features"][country].geometry.type === "MultiPolygon") {
+      coordsObjArr[mapview.data["features"][country].properties.name] = {};
+
+      mapview.data["features"][country].geometry.coordinates.forEach(
         (coords, index) => {
-          coordsObjArr[data["features"][country].properties.name][
-            `${index}${data["features"][country].properties.name}`
+          coordsObjArr[mapview.data["features"][country].properties.name][
+            `${index}${mapview.data["features"][country].properties.name}`
           ] = [];
           coords[0].forEach((coo) => {
-            coordsObjArr[data["features"][country].properties.name][
-              `${index}${data["features"][country].properties.name}`
+            coordsObjArr[mapview.data["features"][country].properties.name][
+              `${index}${mapview.data["features"][country].properties.name}`
             ].push({
               lat: coo[1],
               lng: coo[0],
@@ -81,16 +85,19 @@ function Map() {
         }
       );
     } else {
-      coordsObjArr[data["features"][country].properties.name] = [];
-
-      data["features"][country].geometry.coordinates[0].forEach((coords) => {
-        coordsObjArr[data["features"][country].properties.name].push({
-          lng: coords[0],
-          lat: coords[1],
-        });
-      });
+      coordsObjArr[mapview.data["features"][country].properties.name] = [];
+      mapview.data["features"][country].geometry.coordinates[0].forEach(
+        (coords) => {
+          coordsObjArr[mapview.data["features"][country].properties.name].push({
+            lng: coords[0],
+            lat: coords[1],
+          });
+        }
+      );
     }
   }
+
+  console.log(coordsObjArr);
 
   // creates map component
   const CdvMapComponent = withScriptjs(
