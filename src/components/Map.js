@@ -126,7 +126,7 @@ function Map() {
                   path={coordsObjArr[coords][coo]}
                   key={ind}
                   options={{
-                    fillColor: "#eb4034",
+                    fillColor: "#000",
                     fillOpacity: 0.4,
                     strokeColor: "#000",
                     strokeOpacity: 1,
